@@ -1,0 +1,72 @@
+.Form{
+    text-align: left;
+}
+
+.form-container{
+    display:flex;
+    flex-direction: row;
+    padding: 50px;
+}
+
+.form-edit{
+    flex: 1;
+    height: 100vh;
+    border: 2px solid rgba(230, 92, 0, 0.05);
+    background: rgba(230, 92, 0, 0.37);
+    border-radius: 50px;
+
+    
+}
+
+.form-show{
+    margin-left: 40px;
+    flex:4;
+    height: 100vh;
+}
+
+.form-edit__header{
+    border-radius: 50px;
+    padding: 10px 20px;
+}
+.form-show__title{
+    margin-top: 10px;
+    font-size: 48px;
+}
+
+.form-show__body{
+    height: auto;
+}
+
+.form-show__typography{
+    height: 100px;
+}
+
+.form-show__preview{
+    padding-left: 20%;
+}
+
+.form-created__h1{
+    padding-left: 30px;
+    font-size: 24px;
+    font-weight: bold;
+    border: none;
+    display: block;
+}
+
+.form-created__h1:focus{
+}
+
+input{}
+
+.edit-button{
+    background: white;
+    border: 2px solid rgb(0, 0, 0);
+    padding: 5px;
+    font-weight: bold;
+    color: black;
+    border-radius: 50px;
+}
+
+.edit-button:hover{ 
+    background: rgba(230, 92, 0, 0.37);
+}
