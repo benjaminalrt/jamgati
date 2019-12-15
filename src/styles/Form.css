@@ -8,6 +8,10 @@
     padding: 50px;
 }
 
+.form-group{
+    padding-top: 0px;
+}
+
 .form-edit{
     flex: 1;
     height: 100vh;

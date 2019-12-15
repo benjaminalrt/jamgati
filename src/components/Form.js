@@ -21,19 +21,17 @@ const Form = props => {
     }
 
     const addField = (type,label)=>{
-        const key=fields.length;
+        const keyId=fields.length;
         switch(type){
-            case "text" :
-                setFields(fields.concat(<Input type={type} label={label} name={label} key={key}/>));
-            break;
             case "textarea" :
-                setFields(fields.concat(<Textarea key={key}/>));
+                setFields(fields.concat(<Textarea key={keyId}/>));
             break;
             case "button" :
-                setFields(fields.concat(<button key={key} type="submit">{label}</button>));
+                setFields(fields.concat(<button key={keyId} type="submit">{label}</button>));
             break;
             default :
-            setFields(fields.concat("error"));
+            setFields(fields.concat(<Input type={type} label={label} key={keyId}/>));
+            console.log(label+keyId);
         }
         setIdFields(idFields.concat(label));
     }
