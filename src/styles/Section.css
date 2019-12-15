@@ -1,0 +1,17 @@
+.edit-section{
+  border: 1px solid black;
+  border-bottom: none;
+  background: #ffffff;
+}
+.edit-section:last-child{
+  border-bottom: 1px solid black;
+}
+
+.edit-section a{
+  text-decoration: none;
+  color: unset;
+}
+
+.edit-section__btn span{
+  justify-content: center;
+}

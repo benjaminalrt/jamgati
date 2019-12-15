@@ -3,9 +3,9 @@ import React from 'react';
 const TextArea = props =>{
     return (
         <div>
-            <label for={props.id}>{props.name}</label>
+            <label htmlFor={props.id}>{props.label}</label>
             <br/>
-            <textarea id={props.id}></textarea>
+            <textarea placeholder={props.placeholder} id={props.id}></textarea>
         </div>
     )
 }
