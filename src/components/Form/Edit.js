@@ -7,7 +7,7 @@ import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons'
 
 const Edit = props =>{
 
-    const [newField,setNewField] = useState('')
+    const [format,setFormat] = useState('')
     const [newType,setNewType] = useState('')
     const [newLabel, setNewLabel] = useState('')
 
@@ -20,7 +20,7 @@ const Edit = props =>{
     const R = require('ramda');
 
     const resetStates = ()=>{
-        setNewField('');
+        setFormat('');
         setNewType('');
         setNewLabel('');
         setValues(['','','']);
@@ -28,10 +28,10 @@ const Edit = props =>{
         setUpdateIdField('');
     }
 
-    const handleNewFieldChange = (e)=>{
+    const handleFormatChange = (e)=>{
         setNewType('');
         setValues(['','','']);
-        setNewField(e.target.value);
+        setFormat(e.target.value);
     }
 
     const handleUpdateFieldChange = (e)=>{
@@ -66,6 +66,13 @@ const Edit = props =>{
     const handleUpdateSelectChangeId = (e,id)=>{
         let updatedField = R.clone(updateField);
         updatedField.props.values[id] = e.target.value;
+        setUpdateField(updatedField);
+    }
+
+    const handleUpdatedFormatChange = (e)=>{
+        let updatedField = R.clone(updateField);
+        updatedField.props.format = e.target.value;
+        updatedField.props.type = '';
         setUpdateField(updatedField);
     }
 
@@ -105,7 +112,7 @@ const Edit = props =>{
      * 
      */
     const displayFieldCustomization = () =>{
-        switch(newField){
+        switch(format){
             case "input": return (
                 <div className="custom-field">
                     <label className="edit-card__type" htmlFor='select-type'>Format de valeur:</label>
@@ -125,7 +132,7 @@ const Edit = props =>{
                     <Input className="edit-card__label" placeholder="Saisir un nom" onChange={handleNewLabelChange} key='select-name' id='select-name' label='Choisir un nom de champ' class='edit-card__type'/>
                     <br/>
                     <br/>
-                    <button onClick={()=>{props.onClick(newType, newLabel);resetStates()}}>Ajouter</button>
+                    <button onClick={()=>{props.onClick(newType, newLabel, format);resetStates()}}>Ajouter</button>
                 </div>
                 
             );
@@ -153,7 +160,7 @@ const Edit = props =>{
                     <button onClick={()=>{setValues(values.concat(''))}}>Valeur supplémentaire</button>
                     <br/>
                     <br/>
-                    <button onClick={()=>{props.onClick(newType, newLabel, values);resetStates()}}>Ajouter au formulaire</button>
+                    <button onClick={()=>{props.onClick(newType, newLabel, format, values);resetStates()}}>Ajouter au formulaire</button>
                     <br/>
                 </div>
                 
@@ -163,7 +170,7 @@ const Edit = props =>{
                     <Input className="edit-card__label" placeholder="Contenu du bouton" onChange={handleNewLabelChange} key='button-name' id='button-name' label='Contenu du bouton' class='edit-card__type'/>
                     <br/>
                     <br/>
-                    <button onClick={()=>{props.onClick('button', newLabel);resetStates()}}>Ajouter</button>
+                    <button onClick={()=>{props.onClick('button', newLabel, format);resetStates()}}>Ajouter</button>
                 </div>
             )
             default : return (true);
@@ -175,10 +182,17 @@ const Edit = props =>{
      * 
      */
     const displayFieldModification = () =>{
-        switch(updateField.props.type){
-            case "text": case "textarea": case "date": case "number": case "tel": case "email": case "url": case "password": case "file": case 'text-hidden': return (
+        switch(updateField.props.format){
+            case "input" : return (
                 <div className="custom-field">
-                    <label className="edit-card__type" htmlFor='select-type'>Format de valeur:</label>
+                    <label className="edit-card__type">Type de champ:</label>
+                    <select value={updateField.props.format} onChange={handleUpdatedFormatChange}>
+                        <option value="">--Selection du type de champ à insérer--</option>
+                        <option value="input">Champ de saisie</option>
+                        <option value="select">Champ de selection</option>
+                        <option value="button">Bouton</option>
+                    </select>
+                    <label className="edit-card__type">Format de valeur:</label>
                     <select value={updateField.props.type} className="" onChange={handleUpdatedTypeChange}>
                         <option value="">--Selection du format de valeur--</option>
                         <option value="text">Texte simple</option>
@@ -200,8 +214,15 @@ const Edit = props =>{
                 </div>
                 
             );
-            case "select": case "checkbox" : case "radio" : return (
+            case "select" : return (
                 <div className="custom-field">
+                    <label className="edit-card__type">Type de champ:</label>
+                    <select value={updateField.props.format} onChange={handleUpdatedFormatChange}>
+                        <option value="">--Selection du type de champ à insérer--</option>
+                        <option value="input">Champ de saisie</option>
+                        <option value="select">Champ de selection</option>
+                        <option value="button">Bouton</option>
+                    </select>
                     <label className="edit-card__type" htmlFor='select-type'>Format des valeurs:</label>
                     <select value={updateField.props.type} className="" onChange={handleUpdatedTypeChange}>
                         <option  value="">--Selection du format des valeurs--</option>
@@ -231,6 +252,13 @@ const Edit = props =>{
             );
             case "button": return (
                 <div className="custom-field">
+                    <label className="edit-card__type">Type de champ:</label>
+                    <select value={updateField.props.format} onChange={handleUpdatedFormatChange}>
+                        <option value="">--Selection du type de champ à insérer--</option>
+                        <option value="input">Champ de saisie</option>
+                        <option value="select">Champ de selection</option>
+                        <option value="button">Bouton</option>
+                    </select>
                     <Input value={updateField.props.label} className="edit-card__label" placeholder="Contenu du bouton" onChange={handleUpdatedLabelChange} key='button-name' id='button-name' label='Contenu du bouton' class='edit-card__type'/>
                     <br/>
                     <br/>
@@ -258,8 +286,8 @@ const Edit = props =>{
                             <div className="edit-card__section">            
                                 <span className="edit-card__type">Type de champ:</span>
                                 <div className="select-field">
-                                    <select value={newField} onChange={handleNewFieldChange}>
-                                        <option value="">--Selection du champ--</option>
+                                    <select value={format} onChange={handleFormatChange}>
+                                        <option value="">--Selection du type de champ à insérer--</option>
                                         <option value="input">Champ de saisie</option>
                                         <option value="select">Champ de selection</option>
                                         <option value="button">Bouton</option>
@@ -282,7 +310,7 @@ const Edit = props =>{
                                 <span className="edit-card__type">Champ à modifier:</span>
                                 <div className="select-field">
                                     <select value={updateIdField} onChange={handleUpdateFieldChange}>
-                                        <option value=''>--Selection du champ--</option>
+                                        <option value=''>--Selection du champ à modifier--</option>
                                         {props.fields.map((field,index)=>{
                                             return(
                                                 <option key={index} value={index}>{field.props.label}</option>

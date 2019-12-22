@@ -19,7 +19,7 @@ const Field = props =>{
                                 </>
             );
             case 'select' : return (
-                <React.Fragment key={props.keyId}>
+                <>
                     <label htmlFor={'select'+props.keyId}>{props.label}</label><br/>
                     <select id={'select'+props.keyId} key={'select'+props.keyId} className={props.class}>
                     {props.values.map((value,index)=>{
@@ -28,7 +28,7 @@ const Field = props =>{
                         )
                     })}
                     </select>
-                </React.Fragment>
+                </>
 );
             case 'textarea' : return (
                     <>
@@ -56,5 +56,3 @@ const Field = props =>{
 }
 
 export default Field;
-
-//Checkboxe Boutonradio Liste Menu

@@ -20,13 +20,10 @@ const Form = props => {
         setTitleCreatedForm(event.target.value);
     }
 
-    const displayProps = (x)=>{
-        console.log(fields[x].props);
-    }
 
-    const addField = (type,label,values=[])=>{
+    const addField = (type,label,format,values=[])=>{
         setKeys(keys+1);
-        setFields(fields.concat(<Field type={type} label={label} key={keys} keyId={keys} values={values}/>));
+        setFields(fields.concat(<Field format={format} type={type} label={label} key={keys} keyId={keys} values={values}/>));
         setIdFields(idFields.concat(label)); 
     }
 
@@ -68,12 +65,8 @@ const Form = props => {
                             <input className="form-created__h1" onChange={event => saveTextChange(event)} value={titleCreatedForm}/>
                     
                             {updatefieldsForm()}
-                            {idFields.map((value,index)=>{
-                                return (<button key={index} onClick={()=>displayProps(index)}>{'Element'+value}</button>)
-                            })}
 
                             
-
                         </div>
                         
                     </div>
