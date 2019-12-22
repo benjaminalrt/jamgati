@@ -1,9 +1,7 @@
 import React, { useState } from "react"
 import '../styles/Form.css'
-import Input from './Form/Input'
-import Textarea from './Form/Textarea'
 import Edit from './Form/Edit'
-
+import Field from './Form/Field'
 
 
 const Form = props => {
@@ -13,34 +11,42 @@ const Form = props => {
     const [titleCreatedForm, setTitleCreatedForm] = useState("Titre du formulaire");
     const [fields, setFields] = useState([]);
     const [idFields, setIdFields] = useState([]);
+    const [keys, setKeys] = useState(0);
 
+    const R = require('ramda');
 
     /* FUNCTIONS */
     const saveTextChange = (event) =>{
         setTitleCreatedForm(event.target.value);
     }
 
-    const addField = (type,label)=>{
-        const keyId=fields.length;
-        switch(type){
-            case "textarea" :
-                setFields(fields.concat(<Textarea key={keyId}/>));
-            break;
-            case "button" :
-                setFields(fields.concat(<button key={keyId} type="submit">{label}</button>));
-            break;
-            default :
-            setFields(fields.concat(<Input type={type} label={label} key={keyId}/>));
-            console.log(label+keyId);
-        }
-        setIdFields(idFields.concat(label));
+    const displayProps = (x)=>{
+        console.log(fields[x].props);
+    }
+
+    const addField = (type,label,values=[])=>{
+        setKeys(keys+1);
+        setFields(fields.concat(<Field type={type} label={label} key={keys} keyId={keys} values={values}/>));
+        setIdFields(idFields.concat(label)); 
+    }
+
+    const updateFields = (field)=>{
+        let updatedFields = R.clone(fields);
+        updatedFields[field.props.keyId] = field;
+        setFields(updatedFields);
+    }
+
+    const deleteField = (field)=>{
+        let updatedFields = R.clone(fields);
+        updatedFields.splice(field.props.keyId,1);
+        setFields(updatedFields);
     }
 
     const updatefieldsForm = ()=>{
         return(
-        <div>
+        <>
             {fields}
-        </div>
+        </>
         );
     }
 
@@ -48,7 +54,7 @@ const Form = props => {
     return (
         <div className="Form">
             <div className="form-container">
-                <Edit onClick={addField} idFields={idFields}/>
+                <Edit onClick={addField} onClickUpdate={updateFields} onClickDelete={deleteField} fields={fields}/>
                 
                 <div className="form-show">
                     <div className="form-show__header">
@@ -61,9 +67,10 @@ const Form = props => {
 
                             <input className="form-created__h1" onChange={event => saveTextChange(event)} value={titleCreatedForm}/>
                     
-                            <div>
-                                {updatefieldsForm()}
-                            </div>
+                            {updatefieldsForm()}
+                            {idFields.map((value,index)=>{
+                                return (<button key={index} onClick={()=>displayProps(index)}>{'Element'+value}</button>)
+                            })}
 
                             
 

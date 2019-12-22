@@ -1,28 +1,55 @@
 import React, { useState } from "react"
 import Accordion from 'react-bootstrap/Accordion'
 import Input from './Input'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons'
+
 
 const Edit = props =>{
 
     const [newField,setNewField] = useState('')
-    const [updateField,setUpdateField] = useState('')
     const [newType,setNewType] = useState('')
     const [newLabel, setNewLabel] = useState('')
+
+    const [updateField,setUpdateField] = useState('')
+    const [updateIdField, setUpdateIdField] = useState('');
+
+
+    const [values, setValues] = useState(['','',''])
+    
+    const R = require('ramda');
 
     const resetStates = ()=>{
         setNewField('');
         setNewType('');
         setNewLabel('');
+        setValues(['','','']);
+        setUpdateField('');
+        setUpdateIdField('');
     }
 
     const handleNewFieldChange = (e)=>{
+        setNewType('');
+        setValues(['','','']);
         setNewField(e.target.value);
     }
 
     const handleUpdateFieldChange = (e)=>{
-        setUpdateField(e.target.value);
+        setUpdateIdField(e.target.value);
+        setUpdateField(props.fields[e.target.value]);
     }
 
+    const handleUpdatedTypeChange = (e)=>{
+        let updatedField = R.clone(updateField);
+        updatedField.props.type = e.target.value;
+        setUpdateField(updatedField);
+    }
+
+    const handleUpdatedLabelChange = (e)=>{
+        let updatedField = R.clone(updateField);
+        updatedField.props.label = e.target.value;
+        setUpdateField(updatedField);
+    }
 
     const handleNewTypeChange = (e)=>{
         setNewType(e.target.value)
@@ -32,13 +59,57 @@ const Edit = props =>{
         setNewLabel(e.target.value)
     }
 
+    const handleSelectChangeId = (e,id)=>{
+        setValuesId(e.target.value,id)
+    }
 
+    const handleUpdateSelectChangeId = (e,id)=>{
+        let updatedField = R.clone(updateField);
+        updatedField.props.values[id] = e.target.value;
+        setUpdateField(updatedField);
+    }
+
+    const setValuesId = (value,id)=>{
+        let newValues = R.clone(values);
+        newValues[id]=value;
+        setValues(newValues);
+    }
+
+    const addValuesId = (id)=>{
+        let newValues = R.clone(values);
+        newValues.splice(id,0,'');
+        setValues(newValues);
+    }
+
+    const delValuesId = (id)=>{
+        let newValues = R.clone(values);
+        newValues.splice(id,1);
+        setValues(newValues);
+    }
+    const addUpdateValuesId = (id)=>{
+        let updatedField = R.clone(updateField);
+        updatedField.props.values.splice(id,0,'');
+        setUpdateField(updatedField);
+    }
+
+    const delUpdateValuesId = (id)=>{
+        let updatedField = R.clone(updateField);
+        updatedField.props.values.splice(id,1);
+        setUpdateField(updatedField);
+    }
+
+    
+
+    /**
+     * Permet de choisir quel type de champ faire apparaître
+     * 
+     */
     const displayFieldCustomization = () =>{
         switch(newField){
             case "input": return (
                 <div className="custom-field">
                     <label className="edit-card__type" htmlFor='select-type'>Format de valeur:</label>
-                    <select className="" onChange={handleNewTypeChange}>
+                    <select value={newType} className="" onChange={handleNewTypeChange}>
                         <option value="">--Selection du format de valeur--</option>
                         <option value="text">Texte simple</option>
                         <option value="textarea">Texte multi-ligne</option>
@@ -61,17 +132,29 @@ const Edit = props =>{
             case "select": return (
                 <div className="custom-field">
                     <label className="edit-card__type" htmlFor='select-type'>Format des valeurs:</label>
-                    <select className="" onChange={handleNewTypeChange}>
-                        <option value="">--Selection du format des valeurs--</option>
-                        <option value="checkboxes">Cases à cocher</option>
+                    <select value={newType} className="" onChange={handleNewTypeChange}>
+                        <option  value="">--Selection du format des valeurs--</option>
+                        <option value="checkbox">Cases à cocher</option>
                         <option value="radio">Boutons radio</option>
                         <option value="select">Menu déroulant</option>
-                        <option value="list">Liste de valeurs</option>
                     </select>
-                    <Input className="edit-card__label" placeholder="Saisir un nom" onChange={handleNewLabelChange} key='select-name' id='select-name' label='Choisir un nom de champ' class='edit-card__type'/>
+                    <Input className="edit-card__label" placeholder="Saisir un nom" onChange={handleNewLabelChange} key='select-name' id='select-name' label='Choisir un nom de champ:' class='edit-card__type'/>
+                    <br/>
+                    <p className="edit-card__type" >Valeurs possibles:</p>
+                    {values.map((value,id)=>{
+                        return (
+                        <React.Fragment key={id}>
+                            <input onChange={(e)=>{handleSelectChangeId(e,id)}} placeholder={'Valeur '+(id+1)} id={'value'+id} value={value}/>
+                            <button className="custom-fa" onClick={()=>{addValuesId(id)}}><FontAwesomeIcon className="custom-faplus" icon={faPlus}  /></button>
+                            <button className="custom-fa" onClick={()=>{delValuesId(id)}}><FontAwesomeIcon className="custom-faminus" icon={faMinus}  /></button>
+                            
+                        </React.Fragment>)
+                    })}
+                    <button onClick={()=>{setValues(values.concat(''))}}>Valeur supplémentaire</button>
                     <br/>
                     <br/>
-                    <button onClick={()=>{props.onClick(newType, newLabel);resetStates()}}>Ajouter</button>
+                    <button onClick={()=>{props.onClick(newType, newLabel, values);resetStates()}}>Ajouter au formulaire</button>
+                    <br/>
                 </div>
                 
             );
@@ -84,6 +167,78 @@ const Edit = props =>{
                 </div>
             )
             default : return (true);
+        }
+    }
+
+    /**
+     * Permet de modifier un champ
+     * 
+     */
+    const displayFieldModification = () =>{
+        switch(updateField.props.type){
+            case "text": case "textarea": case "date": case "number": case "tel": case "email": case "url": case "password": case "file": case 'text-hidden': return (
+                <div className="custom-field">
+                    <label className="edit-card__type" htmlFor='select-type'>Format de valeur:</label>
+                    <select value={updateField.props.type} className="" onChange={handleUpdatedTypeChange}>
+                        <option value="">--Selection du format de valeur--</option>
+                        <option value="text">Texte simple</option>
+                        <option value="textarea">Texte multi-ligne</option>
+                        <option value="date">Date</option>
+                        <option value="number">Nombre</option>
+                        <option value="tel">Numéro de téléphone</option>
+                        <option value="email">Addresse e-mail</option>
+                        <option value="url">Lien hypertexte</option>
+                        <option value="password">Mot de passe</option>
+                        <option value="file">Fichier</option>
+                        <option value="text-hidden">Caché</option>
+                    </select>
+                    <Input value={updateField.props.label} className="edit-card__label" placeholder="Saisir un nom" onChange={handleUpdatedLabelChange} key='select-name' id='select-name' label='Choisir un nom de champ:' class='edit-card__type'/>
+                    <br/>
+                    <br/>
+                    <button onClick={()=>{props.onClickUpdate(updateField);resetStates()}}>Mettre à jour</button>
+                    <button onClick={()=>{props.onClickDelete(updateField);resetStates()}}>Supprimer</button>
+                </div>
+                
+            );
+            case "select": case "checkbox" : case "radio" : return (
+                <div className="custom-field">
+                    <label className="edit-card__type" htmlFor='select-type'>Format des valeurs:</label>
+                    <select value={updateField.props.type} className="" onChange={handleUpdatedTypeChange}>
+                        <option  value="">--Selection du format des valeurs--</option>
+                        <option value="checkbox">Cases à cocher</option>
+                        <option value="radio">Boutons radio</option>
+                        <option value="select">Menu déroulant</option>
+                    </select>
+                    <Input value={updateField.props.label} className="edit-card__label" placeholder="Saisir un nom" onChange={handleUpdatedLabelChange} key='select-name' id='select-name' label='Choisir un nom de champ:' class='edit-card__type'/>
+                    <br/>
+                    <p className="edit-card__type" >Valeurs possibles:</p>
+                    {updateField.props.values.map((value,id)=>{
+                        return (
+                        <React.Fragment key={id}>
+                            <input onChange={(e)=>{handleUpdateSelectChangeId(e,id)}} placeholder={'Valeur '+(id+1)} id={'value'+id} value={value}/>
+                            <button className="custom-fa" onClick={()=>{addUpdateValuesId(id)}}><FontAwesomeIcon className="custom-faplus" icon={faPlus}  /></button>
+                            <button className="custom-fa" onClick={()=>{delUpdateValuesId(id)}}><FontAwesomeIcon className="custom-faminus" icon={faMinus}  /></button>
+                        </React.Fragment>)
+                    })}
+                    <button onClick={()=>{addUpdateValuesId(updateField.props.values.length)}}>Valeur supplémentaire</button>
+                    <br/>
+                    <br/>
+                    <button onClick={()=>{props.onClickUpdate(updateField);resetStates()}}>Mettre à jour</button>
+                    <button onClick={()=>{props.onClickDelete(updateField);resetStates()}}>Supprimer</button>
+                    <br/>
+                </div>
+                
+            );
+            case "button": return (
+                <div className="custom-field">
+                    <Input value={updateField.props.label} className="edit-card__label" placeholder="Contenu du bouton" onChange={handleUpdatedLabelChange} key='button-name' id='button-name' label='Contenu du bouton' class='edit-card__type'/>
+                    <br/>
+                    <br/>
+                    <button onClick={()=>{props.onClickUpdate(updateField);resetStates()}}>Mettre à jour</button>    
+                    <button onClick={()=>{props.onClickDelete(updateField);resetStates()}}>Supprimer</button>
+                </div>
+            )
+            default : console.log('error');
         }
     }
 
@@ -106,20 +261,12 @@ const Edit = props =>{
                                     <select value={newField} onChange={handleNewFieldChange}>
                                         <option value="">--Selection du champ--</option>
                                         <option value="input">Champ de saisie</option>
-                                        <option value="select" disabled>Champ de selection</option>
+                                        <option value="select">Champ de selection</option>
                                         <option value="button">Bouton</option>
                                     </select>
                                 </div>
                                 {displayFieldCustomization()}
-                                
-
                             </div>
-                            {/* <div className="edit-card__section">            
-                                <span className="edit-card__content">MODIFIER</span>
-                            </div>
-                            <div className="edit-card__section">            
-                                <span className="edit-card__content">DEPLACER</span>
-                            </div> */}
                         </div>
                     </Accordion.Collapse>
                 </div>
@@ -134,15 +281,16 @@ const Edit = props =>{
                             <div className="edit-card__section">            
                                 <span className="edit-card__type">Champ à modifier:</span>
                                 <div className="select-field">
-                                    <select value={updateField} onChange={()=>{handleUpdateFieldChange();}}>
-                                        <option value="">--Selection du champ--</option>
-                                        {props.idFields.map((field)=>{
+                                    <select value={updateIdField} onChange={handleUpdateFieldChange}>
+                                        <option value=''>--Selection du champ--</option>
+                                        {props.fields.map((field,index)=>{
                                             return(
-                                                <option key={field} value={field}>{field}</option>
+                                                <option key={index} value={index}>{field.props.label}</option>
                                             )
                                         })}
                                     </select>
                                 </div>
+                                {updateField==='' ? null : displayFieldModification()}
                             </div>
                         </div>
                     </Accordion.Collapse>

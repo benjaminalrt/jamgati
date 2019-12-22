@@ -115,3 +115,10 @@
 .edit-card__label{
     padding-top:10px;
 }
+
+.custom-fa{
+    margin-left: 15px;
+    border: solid 1px;
+    border-radius: 50%;
+    background: white;
+}
