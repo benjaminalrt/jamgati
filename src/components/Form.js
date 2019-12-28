@@ -10,32 +10,38 @@ const Form = props => {
     /* Form states */
     const [titleCreatedForm, setTitleCreatedForm] = useState("Titre du formulaire");
     const [fields, setFields] = useState([]);
-    const [idFields, setIdFields] = useState([]);
     const [keys, setKeys] = useState(0);
+    const [pos,setPos] = useState(0);
+    const testField = <Field key={10} getKey={1} format='input' type='text' label='Orange'/>
 
     const R = require('ramda');
 
     /* FUNCTIONS */
-    const saveTextChange = (event) =>{
-        setTitleCreatedForm(event.target.value);
-    }
 
+    // const updatePos = ()=>{
+    //     let updatedFields = R.clone(fields);
+    //     updatedFields.map((field, index)=>{
+    //         field.props.pos = index;
+    //     })
+    //     setFields(updatedFields)
+    // }
 
-    const addField = (type,label,format,values=[])=>{
+    const addField = (field)=>{
         setKeys(keys+1);
-        setFields(fields.concat(<Field format={format} type={type} label={label} key={keys} keyId={keys} values={values}/>));
-        setIdFields(idFields.concat(label)); 
+        let newField = <Field key={keys} pos={pos} getKey={keys} format={field.props.format} type={field.props.type} label={field.props.label} values={field.props.values}/>
+        setPos(pos+1);
+        setFields(fields.concat(newField));
     }
 
     const updateFields = (field)=>{
         let updatedFields = R.clone(fields);
-        updatedFields[field.props.keyId] = field;
+        updatedFields[field.props.getKey] = field;
         setFields(updatedFields);
     }
 
     const deleteField = (field)=>{
         let updatedFields = R.clone(fields);
-        updatedFields.splice(field.props.keyId,1);
+        updatedFields.splice(field.props.getKey,1);
         setFields(updatedFields);
     }
 
@@ -47,11 +53,18 @@ const Form = props => {
         );
     }
 
+    const moveFieldToId = (field,id)=>{
+        let updatedFields = R.clone(fields);
+        let fieldToAdd = R.clone(field);
+        updatedFields.splice(field.props.getKey,1);
+        updatedFields.splice(id,0,fieldToAdd);
+        setFields(updatedFields);
+    }
 
     return (
         <div className="Form">
             <div className="form-container">
-                <Edit onClick={addField} onClickUpdate={updateFields} onClickDelete={deleteField} fields={fields}/>
+                <Edit onClickAdd={addField} onClickUpdate={updateFields} onClickDelete={deleteField} fields={fields}/>
                 
                 <div className="form-show">
                     <div className="form-show__header">
@@ -62,10 +75,13 @@ const Form = props => {
                         </div>
                         <div className="form-show__preview">
 
-                            <input className="form-created__h1" onChange={event => saveTextChange(event)} value={titleCreatedForm}/>
-                    
+                            <p>Formulaire</p>
+                     
                             {updatefieldsForm()}
-
+                            
+                            <button onClick={()=>console.log(fields)}>fields</button>
+                            <button onClick={()=>{moveFieldToId(testField,1);console.log(fields)}}>add</button>
+                            <button onClick={()=>{moveFieldToId(testField,0);console.log(fields)}}>xchange</button>
                             
                         </div>
                         

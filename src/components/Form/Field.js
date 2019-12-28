@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 
 const Field = props =>{
+
+
+
 
     const displayField = ()=>{
         switch(props.type){
