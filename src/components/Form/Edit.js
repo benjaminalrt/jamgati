@@ -18,8 +18,8 @@ const Edit = props =>{
     /**
      * le champ qu'on est entrain de modifier
      */
-    const [updatingField, setUpdatingField] = useState([<Field key={0} format='' label='' values={['','','']} pos='' />,<Field getKey={-1} />])
-    const initField = [<Field key={0} format='' label='' values={['','','']} />,<Field getKey={-1} />]
+    const [updatingField, setUpdatingField] = useState([<Field key={0} format='' label='' values={['','','']} pos={-1} />,<Field getKey={-1} />])
+    const initField = [<Field key={0} format='' label='' values={['','','']} pos={-1}/>,<Field getKey={-1} />]
 
     /**
      * setteur id car tableau
@@ -62,10 +62,14 @@ const Edit = props =>{
         updatedField.props.values[id] = e.target.value;
         setUpdatingFieldId(updatedField,editState);
     }
-    
     const updateValuesId = (id,op)=>{
         let updatedField = R.clone(updatingField[editState]);
         op==='+'? updatedField.props.values.splice(id,0,'') : updatedField.props.values.splice(id,1);
+        setUpdatingFieldId(updatedField,editState);
+    }
+    const handleChangeUpdatingFieldPos = (e)=>{
+        let updatedField = R.clone(updatingField[editState]);
+        updatedField.props.pos = e.target.value-1;
         setUpdatingFieldId(updatedField,editState);
     }
 
@@ -120,6 +124,22 @@ const Edit = props =>{
                                 <br/>
                             </> : null
                         }
+                        <label className="edit-card__type">Position du champ:</label><br/>
+                        <input value={field.pos!==-1? field.pos+1 : props.fields.length+1} type="number" onChange={handleChangeUpdatingFieldPos}/>
+                        {(field.pos!==field.getKey)&&(field.pos!==-1)? 
+                            <>
+                                <div className="info-bulle">
+                                    {(field.pos===0)||(field.pos===props.fields.length)?
+                                    <p>Le champ sera déplacé en {field.pos===0?'première':'dernière'} position</p>
+                                    :
+                                    <p>Le champ sera déplacé entre le champ "{props.fields[field.pos-1].props.label}" et le champ "{props.fields[field.pos+1].props.label}".</p>
+                                    }
+                                </div>
+                            </> : null
+                        }
+                        <br/>
+                        <br/>
+                        <br/>
                     </>
                 }
             </React.Fragment>)
@@ -180,9 +200,9 @@ const Edit = props =>{
                             </div>
                         </div>
                     </Accordion.Collapse>
+                    <button onClick={()=>console.log(props.fields)}>C</button>
                 </div>
             </Accordion>
-            <button onClick={()=>console.log(props.fields)}>fields</button>
         </div>
         )
 
