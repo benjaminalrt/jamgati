@@ -30,8 +30,20 @@ const Form = props => {
 
     const addField = (field)=>{
         setKeys(keys+1);
-        let newField = <Field key={keys} pos={keys} getKey={keys} format={field.props.format} type={field.props.type} label={field.props.label} values={field.props.values}/>
-        setFields(fields.concat(newField));
+        let newField = <Field key={keys} pos={field.props.pos} getKey={field.props.pos} format={field.props.format} type={field.props.type} label={field.props.label} placeholder={field.props.placeholder} values={field.props.values}/>
+        let updatedFields = R.clone(fields);
+        updatedFields.splice(field.props.pos,0,newField)
+        if(field.props.pos!==fields.length){
+            updatedFields.forEach((cell,index)=>{
+                if(index>field.props.pos){
+                    console.log('EDITION')
+                    let upField = <Field key={cell.key} pos={cell.props.pos+1} getKey={cell.props.getKey+1} format={cell.props.format} type={cell.props.type} label={cell.props.label} values={cell.props.values}/>;
+                    updatedFields[index]=upField;
+                    }
+                })
+            updatedFields.sort((a,b)=> a.props.pos-b.props.pos);
+        }
+        setFields(updatedFields);
     }
 
     const updateFields = (field)=>{
@@ -55,6 +67,13 @@ const Form = props => {
     const deleteField = (field)=>{
         let updatedFields = R.clone(fields);
         updatedFields.splice(field.props.getKey,1);
+        updatedFields.forEach((cell,index)=>{ 
+            if (index>=field.props.pos){
+                cell.props.pos-=1;
+                cell.props.getKey-=1;          
+            }
+        })
+        updatedFields.sort((a,b)=> a.props.pos-b.props.pos);
         setFields(updatedFields);
     }
 

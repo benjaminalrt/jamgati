@@ -18,8 +18,13 @@ const Edit = props =>{
     /**
      * le champ qu'on est entrain de modifier
      */
-    const [updatingField, setUpdatingField] = useState([<Field key={0} format='' label='' values={['','','']} pos={-1} />,<Field getKey={-1} />])
-    const initField = [<Field key={0} format='' label='' values={['','','']} pos={-1}/>,<Field getKey={-1} />]
+    const [updatingField, setUpdatingField] = useState([<Field key={0} format='' label='' placeholder='' values={['Valeur 1','Valeur 2','Valeur 3']} pos={0} />,<Field getKey={-1} />])
+
+    const initializeField= ()=>{
+        let newPos = props.fields.length+1
+        let init = [<Field key={0} format='' label='' placeholder='' values={['','','']} pos={newPos}/>,<Field getKey={-1} />];
+        setUpdatingField(init);
+    }
 
     /**
      * setteur id car tableau
@@ -57,6 +62,11 @@ const Edit = props =>{
         updatedField.props.label = e.target.value;
         setUpdatingFieldId(updatedField,editState);
     }
+    const handleChangeUpdatingFieldPlaceholder = (e)=>{
+        let updatedField = R.clone(updatingField[editState]);
+        updatedField.props.placeholder = e.target.value;
+        setUpdatingFieldId(updatedField,editState);
+    }
     const handleChangeUpdatingFieldValuesId = (e,id)=>{
         let updatedField = R.clone(updatingField[editState]);
         updatedField.props.values[id] = e.target.value;
@@ -80,14 +90,17 @@ const Edit = props =>{
     const displayCustomizeField = (field) =>{
         return(
             <React.Fragment key={editState}>
+                {/* Début : Selecteur de type de valeur */}
                 <label className="edit-card__type">Type de champ:</label>
                 <select value={field.format} onChange={handleChangeUpdatingFieldFormat}>
                     <option value="">--Selection du type de champ à insérer--</option>
                     {Object.keys(formats).map((key,id)=>{return <option key={id} value={key}>{formats[key]}</option>})}
                 </select>
+                {/* Fin : Selecteur de type de valeur */}
 
                 {field.format==='' ? null :
                     <>
+                        {/* Début : Selecteur de format de valeur */}
                         {field.format==='button' ? null :
                             <>
                                 <label className="edit-card__type">Format de valeur:</label>
@@ -99,14 +112,29 @@ const Edit = props =>{
                                 </select>
                             </>
                         }
+                        {/* Fin : Selecteur de format de valeur */}
+
                         <br/>
 
+                        {/* Début : Selecteur de nom de champ */}
                         <label className="edit-card__type">Saisir un nom:</label><br/>
-                        <input key={editState} value={field.label} onChange={handleChangeUpdatingFieldLabel}/>
+                        <input key={editState+'label'} value={field.label} onChange={handleChangeUpdatingFieldLabel}/>
+                         {/* Fin : Selecteur de nom de champ */}
 
                         <br/>
                         <br/>
                         <br/>
+
+                        {/* Début : Selecteur de placeholder */}
+                        <label className="edit-card__type">Saisir un libellé de champ:</label><br/>
+                        <input key={editState+'placeholder'} value={field.placeholder} onChange={handleChangeUpdatingFieldPlaceholder}/>
+                         {/* Fin : Selecteur de placeholder */}
+
+                        <br/>
+                        <br/>
+                        <br/>
+
+                        {/* Début : Selecteur de valeurs pour champs à choix multiple */}
                         {field.format==='select' ?
                             <>
                                 <p className="edit-card__type" >Valeurs possibles:</p>
@@ -124,19 +152,37 @@ const Edit = props =>{
                                 <br/>
                             </> : null
                         }
+                        {/* Fin : Selecteur de valeurs pour champs à choix multiple */}
+
+                        {/* Début : Selecteur de position */}
                         <label className="edit-card__type">Position du champ:</label><br/>
-                        <input value={field.pos!==-1? field.pos+1 : props.fields.length+1} type="number" onChange={handleChangeUpdatingFieldPos}/>
-                        {(field.pos!==field.getKey)&&(field.pos!==-1)? 
+                        <input value={field.pos+1} type="number" onChange={handleChangeUpdatingFieldPos} min='1' max={props.fields.length+(editState==='0'? 1:0)}/>
+                        {(editState==='0')? 
                             <>
                                 <div className="info-bulle">
-                                    {(field.pos===0)||(field.pos===props.fields.length)?
-                                    <p>Le champ sera déplacé en {field.pos===0?'première':'dernière'} position</p>
-                                    :
-                                    <p>Le champ sera déplacé entre le champ "{props.fields[field.pos-1].props.label}" et le champ "{props.fields[field.pos+1].props.label}".</p>
+                                    {
+                                        (field.pos===0)||(field.pos===(props.fields.length))?
+                                            <p>Le champ sera déplacé en {field.pos===0?'première':'dernière'} position</p>
+                                            :
+                                            <p>Le champ sera déplacé entre le champ "{props.fields[field.pos-1].props.label}" et le champ "{props.fields[field.pos].props.label}".</p>
                                     }
                                 </div>
                             </> : null
                         }
+                        {(field.pos!==field.getKey)&&(editState==='1')? 
+                            <>
+                                <div className="info-bulle">
+                                    {
+                                        (field.pos===0)||(field.pos===(props.fields.length-1))?
+                                            <p>Le champ sera déplacé en {field.pos===0?'première':'dernière'} position.</p>
+                                            :
+                                            <p>Le champ sera déplacé entre le champ "{props.fields[field.pos+(field.pos>field.getKey? 0:-1)].props.label}" et le champ "{props.fields[field.pos+(field.pos>field.getKey? 1:0)  ].props.label}".</p>
+                                    }
+                                </div>
+                            </> : null
+                        }
+                        {/* Fin : Selecteur de position */}
+
                         <br/>
                         <br/>
                         <br/>
@@ -162,7 +208,7 @@ const Edit = props =>{
                             {displayCustomizeField(updatingField[0].props)}
                             {updatingField[0].props.format==='' ? null : 
                                 <>   
-                                    <button onClick={()=>{props.onClickAdd(updatingField[0]);setUpdatingFieldId(initField[0],0)}}>Ajouter au formulaire</button>  
+                                    <button onClick={()=>{props.onClickAdd(updatingField[0]);initializeField();}}>Ajouter au formulaire</button>  
                                 </>}
                             </div>
                         </div>
@@ -193,8 +239,8 @@ const Edit = props =>{
                                     {updatingField[1].props.getKey===-1 ? null : 
                                     <>   
                                         {displayCustomizeField(updatingField[1].props)}
-                                        <button onClick={()=>{props.onClickUpdate(updatingField[1]);setUpdatingFieldId(initField[1],1)}}>Mettre à jour</button>    
-                                        <button onClick={()=>{props.onClickDelete(updatingField[1]);setUpdatingFieldId(initField[1],1)}}>Supprimer</button>
+                                        <button onClick={()=>{props.onClickUpdate(updatingField[1]);initializeField()}}>Mettre à jour</button>    
+                                        <button onClick={()=>{props.onClickDelete(updatingField[1]);initializeField()}}>Supprimer</button>
                                     </>}
                                 </div>
                             </div>
